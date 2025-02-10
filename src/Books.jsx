@@ -2,18 +2,21 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 // eslint-disable-next-line react/prop-types
-function Books({ onLogout }) {
+function Books({role, onLogout }) {
   const [books, setBooks] = useState([]);
   const [form, setForm] = useState({ id: null, title: "", author: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
+  const [users, setUsers] = useState([]);
+
 
   const BASE_URL = "http://localhost:8080/api/books";
+  const USERS_URL = "http://localhost:8080/api/users";
 
   const fetchBooks = async () => {
     try {
       const response = await axios.get("http://localhost:8080/api/books", {
-        withCredentials: true, // ✅ Send session cookie
+        withCredentials: true,
       });
       setBooks(response.data);
     } catch (error) {
@@ -24,6 +27,18 @@ function Books({ onLogout }) {
       }
       setError("❌ Failed to fetch books. Check console for details.");
     }
+  };
+
+  const fetchUsers = async () => {
+    // if (role === "admin") {
+      try {
+        const response = await axios.get(USERS_URL, { withCredentials: true });
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setError("❌ Failed to fetch users. Check console for details.");
+      }
+    // }`
   };
 
   const addBook = async () => {
@@ -86,11 +101,14 @@ function Books({ onLogout }) {
 
   useEffect(() => {
     fetchBooks();
+    fetchUsers();
   }, []);
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+    <div style={{ padding: "30px", fontFamily: "Arial, sans-serif" }}>
+      <h3>Welcome, {role}!</h3>
       <h1>Books Manager</h1>
+      
       <button
         onClick={onLogout}
         style={{
@@ -105,6 +123,30 @@ function Books({ onLogout }) {
       >
         Logout
       </button>
+
+      <div>
+          <h2>Users List</h2>
+          {users.length > 0 ? (
+            <ul style={{ listStyle: "none", padding: "0" }}>
+              {users.map((user) => (
+                <li
+                  key={user.id}
+                  style={{
+                    marginBottom: "15px",
+                    padding: "10px",
+                    border: "1px solid #ddd",
+                    borderRadius: "4px",
+                  }}
+                >
+                  <div>{user.username}</div>
+                  <div>{user.roles.map((r) => r.authority).join(", ")}</div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No users available.</p>
+          )}
+        </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <div style={{ marginBottom: "20px" }}>
         <input

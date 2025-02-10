@@ -5,13 +5,16 @@ import Login from "./Login";
 
 function App() {
   const [isAuth, setIsAuth] = useState(false); 
+  const [role, setRole] = useState("");
 
-  const handleLogin = () => {
+  const handleLogin = (role) => {
     setIsAuth(true); 
+    setRole(role);
   };
 
   const handleLogout = () => {
     setIsAuth(false); 
+    setRole("");
   };
 
   return (
@@ -24,7 +27,7 @@ function App() {
 
         <Route
           path="/books"
-          element={isAuth ? <Books onLogout={handleLogout} /> : <Navigate to="/" />}
+          element={isAuth ? <Books role={role} onLogout={handleLogout} /> : <Navigate to="/" />}
         />
 
         <Route path="*" element={<Navigate to="/" />} />

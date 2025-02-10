@@ -19,9 +19,13 @@ function Login({ onLogin }) {
         credentials,
         { withCredentials: true }
       );
-
+  
       if (response.status === 200) {
-        onLogin();
+        const { roles } = response.data;
+        const role = roles[0]?.authority;
+        console.log(role);
+        
+        onLogin(role); 
         navigate("/books");
       } else {
         setError("Invalid username or password.");
